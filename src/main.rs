@@ -7,7 +7,6 @@ use crate::score::{scoreboard_update_system, spawn_score_board, Score};
 use crate::wall::{spawn_walls, wall_reset_system};
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
-use bevy::render::pass::ClearColor;
 use bevy::window::WindowResized;
 
 mod ball;
@@ -17,27 +16,27 @@ mod score;
 mod wall;
 
 fn main() {
-	App::build()
+	App::new()
 		.add_plugins(DefaultPlugins)
 		.add_plugin(FrameTimeDiagnosticsPlugin)
 		.add_plugin(LogDiagnosticsPlugin::default())
 		.add_event::<Reset>()
 		.insert_resource(Score::default())
-		.add_startup_system(setup.system())
-		.add_system(ball_movement_system.system())
-		.add_system(paddle_movement_system.system())
-		.add_system(paddle_reset_system.system())
-		.add_system(ball_collision_system.system())
-		.add_system(ball_reset_system.system())
-		.add_system(goal_collision_system.system())
-		.add_system(goal_reset_system.system())
-		.add_system(wall_reset_system.system())
-		.add_system(scoreboard_update_system.system())
-		.add_system(reset_on_window_resize_system.system())
+		.add_startup_system(setup)
+		.add_system(ball_movement_system)
+		.add_system(paddle_movement_system)
+		.add_system(paddle_reset_system)
+		.add_system(ball_collision_system)
+		.add_system(ball_reset_system)
+		.add_system(goal_collision_system)
+		.add_system(goal_reset_system)
+		.add_system(wall_reset_system)
+		.add_system(scoreboard_update_system)
+		.add_system(reset_on_window_resize_system)
 		.run();
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Component)]
 pub enum Player {
 	Left,
 	Right,
@@ -56,6 +55,7 @@ impl Player {
 /// The score is not reset to 0 however.
 pub struct Reset;
 
+#[derive(Component)]
 pub struct Collider;
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
@@ -71,7 +71,6 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 		width: 1280.0,
 		height: 720.0,
 		title: "pong clone".to_string(),
-		vsync: true,
 		resizable: true,
 		..Default::default()
 	});

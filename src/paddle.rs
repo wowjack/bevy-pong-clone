@@ -1,15 +1,14 @@
 use crate::{Collider, Player, Reset};
-use bevy::app::EventReader;
+use bevy::prelude::*;
 use bevy::core::Time;
 use bevy::ecs::system::{Commands, Query, Res};
 use bevy::input::keyboard::KeyCode;
 use bevy::input::Input;
 use bevy::math::{Vec2, Vec3};
 use bevy::prelude::{Sprite, Windows};
-use bevy::sprite::entity::SpriteBundle;
 use bevy::transform::components::Transform;
 
-#[derive(Default)]
+#[derive(Default, Component)]
 pub struct Paddle {
 	speed: f32,
 }
@@ -30,10 +29,10 @@ pub fn paddle_reset_system(
 
 	let window = windows.get_primary().unwrap();
 
-	for (mut sprite, mut transform, mut paddle, &player) in paddle_query.iter_mut() {
+	for (_sprite, mut transform, mut paddle, &player) in paddle_query.iter_mut() {
 		paddle.speed = window.height() / 3.0;
 
-		sprite.size = Vec2::new(Paddle::WIDTH, 0.2 * window.height());
+		transform.scale = Vec3::new(Paddle::WIDTH, 0.2 * window.height(), 1.);
 
 		use Player::*;
 		let x_translation = match player {

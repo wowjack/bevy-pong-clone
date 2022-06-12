@@ -1,6 +1,6 @@
 use crate::wall::Wall;
 use crate::Reset;
-use bevy::app::EventReader;
+use bevy::prelude::*;
 use bevy::asset::AssetServer;
 use bevy::ecs::prelude::Query;
 use bevy::ecs::system::{Commands, Res};
@@ -23,6 +23,7 @@ impl Display for Score {
 	}
 }
 
+#[derive(Component)]
 pub struct ScoreBoard;
 
 pub fn spawn_score_board(commands: &mut Commands, asset_server: &Res<AssetServer>) {

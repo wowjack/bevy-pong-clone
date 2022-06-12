@@ -1,11 +1,11 @@
 use crate::{Collider, Reset};
-use bevy::app::EventReader;
+use bevy::prelude::*;
 use bevy::ecs::prelude::{Query, Res};
 use bevy::ecs::system::Commands;
-use bevy::math::{Vec2, Vec3};
+use bevy::math::{Vec3};
 use bevy::prelude::{Sprite, Transform, Windows};
-use bevy::sprite::entity::SpriteBundle;
 
+#[derive(Component)]
 pub enum Wall {
 	Top,
 	Bottom,
@@ -26,8 +26,8 @@ pub fn wall_reset_system(
 
 	let window = windows.get_primary().unwrap();
 
-	for (mut sprite, mut transform, wall) in query.iter_mut() {
-		sprite.size = Vec2::new(window.width(), Wall::THICKNESS);
+	for (_sprite, mut transform, wall) in query.iter_mut() {
+		transform.scale = Vec3::new(window.width(), Wall::THICKNESS, 1.);
 
 		use Wall::*;
 		let y_offset = (window.height() - Wall::THICKNESS) / 2.0;

@@ -1,17 +1,17 @@
 use crate::ball::Ball;
 use crate::score::Score;
 use crate::{Player, Reset};
-use bevy::app::{EventReader, EventWriter};
+use bevy::prelude::*;
 use bevy::ecs::prelude::Res;
 use bevy::ecs::system::{Commands, Query, ResMut};
 use bevy::math::{Vec2, Vec3};
 use bevy::prelude::Windows;
 use bevy::sprite::collide_aabb::collide;
-use bevy::sprite::entity::SpriteBundle;
 use bevy::sprite::Sprite;
 use bevy::transform::components::Transform;
 use std::ops::DerefMut;
 
+#[derive(Component)]
 pub struct Goal;
 
 impl Goal {
@@ -42,8 +42,8 @@ pub fn goal_reset_system(
 
 	let window = windows.get_primary().unwrap();
 
-	for (mut sprite, mut transform, _goal, player) in query.iter_mut() {
-		sprite.size = Vec2::new(Goal::THICKNESS, window.height());
+	for (_sprite, mut transform, _goal, player) in query.iter_mut() {
+		transform.scale = Vec3::new(Goal::THICKNESS, window.height(), 1.);
 
 		use Player::*;
 		let x_offset = (window.width() - Goal::THICKNESS) / 2.0;
@@ -61,13 +61,13 @@ pub fn goal_collision_system(
 	goal_query: Query<(&Transform, &Sprite, &Goal, &Player)>,
 	mut score: ResMut<Score>,
 ) {
-	for (_ball, ball_transform, ball_sprite) in ball_query.iter() {
-		for (goal_transform, goal_sprite, _goal, player) in goal_query.iter() {
+	for (_ball, ball_transform, _ball_sprite) in ball_query.iter() {
+		for (goal_transform, _goal_sprite, _goal, player) in goal_query.iter() {
 			let collision = collide(
 				ball_transform.translation,
-				ball_sprite.size,
+				Vec2::new(ball_transform.scale.x, ball_transform.scale.y),
 				goal_transform.translation,
-				goal_sprite.size,
+				Vec2::new(goal_transform.scale.x, goal_transform.scale.y),
 			);
 
 			if collision.is_some() {

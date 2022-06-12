@@ -1,15 +1,15 @@
 use crate::{Collider, Reset};
-use bevy::app::EventReader;
+use bevy::prelude::*;
 use bevy::core::Time;
 use bevy::ecs::system::{Commands, Query, Res};
 use bevy::math::{Vec2, Vec3};
 use bevy::prelude::Windows;
 use bevy::sprite::collide_aabb::collide;
 use bevy::sprite::collide_aabb::Collision;
-use bevy::sprite::entity::SpriteBundle;
 use bevy::sprite::Sprite;
 use bevy::transform::components::Transform;
 
+#[derive(Component)]
 pub struct Ball {
 	speed: f32,
 	direction: Vec2,
@@ -48,11 +48,11 @@ pub fn ball_reset_system(
 
 	let window = windows.get_primary().unwrap();
 
-	for (mut sprite, mut transform, mut ball) in query.iter_mut() {
+	for (_sprite, mut transform, mut ball) in query.iter_mut() {
 		ball.speed = window.height() / 1.5;
 
 		let ball_width = 0.05 * window.height();
-		sprite.size = Vec2::new(ball_width, ball_width);
+		transform.scale = Vec3::new(ball_width, ball_width, 1.);
 
 		transform.translation = Vec3::default();
 	}
@@ -69,13 +69,13 @@ pub fn ball_collision_system(
 	mut ball_query: Query<(&mut Ball, &Transform, &Sprite)>,
 	collider_query: Query<(&Collider, &Transform, &Sprite)>,
 ) {
-	for (mut ball, ball_transform, ball_sprite) in ball_query.iter_mut() {
-		for (_collider, collider_transform, collider_sprite) in collider_query.iter() {
+	for (mut ball, ball_transform, _ball_sprite) in ball_query.iter_mut() {
+		for (_collider, collider_transform, _collider_sprite) in collider_query.iter() {
 			let collision = collide(
 				ball_transform.translation,
-				ball_sprite.size,
+				Vec2::new(ball_transform.scale.x, ball_transform.scale.y),
 				collider_transform.translation,
-				collider_sprite.size,
+				Vec2::new(collider_transform.scale.x, collider_transform.scale.y),
 			);
 
 			let collision = match collision {
@@ -89,6 +89,7 @@ pub fn ball_collision_system(
 				Right => (ball.direction.x < 0.0, false),
 				Top => (false, ball.direction.y < 0.0),
 				Bottom => (false, ball.direction.y > 0.0),
+				_ => (false, false)
 			};
 
 			if reflect_x {
